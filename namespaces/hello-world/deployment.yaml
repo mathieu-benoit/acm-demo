@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: whereami
+  name: hello-world
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: whereami
+      app: hello-world
   template:
     metadata:
       labels:
-        app: whereami
+        app: hello-world
     spec:
       serviceAccountName: default
       containers:
-      - name: whereami
+      - name: hello-world
         image: us-east4-docker.pkg.dev/mabenoit-demo/containers/hello-world:v1
         ports:
           - name: http
