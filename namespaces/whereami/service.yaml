@@ -9,4 +9,4 @@ spec:
     name: http
   selector:
     app: whereami
-  type: LoadBalancer
+  type: ClusterIP
