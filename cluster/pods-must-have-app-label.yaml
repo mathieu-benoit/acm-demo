@@ -1,0 +1,13 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: pods-must-have-app-label
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    labels:
+      - key: "app"

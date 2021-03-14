@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: allowed-repos
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    repos:
+      - "gcr.io"
+      - "k8s.gcr.io"
+      - "gke.gcr.io"
+      - "us-east4-docker.pkg.dev/mabenoit-demo/containers"
