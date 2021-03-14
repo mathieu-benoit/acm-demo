@@ -2,5 +2,7 @@ kind: Namespace
 apiVersion: v1
 metadata:
   name: whereami
+  annotations:
+    configmanagement.gke.io/cluster-selector: gcp-selector
   labels:
     istio.io/rev: asm-191-1
