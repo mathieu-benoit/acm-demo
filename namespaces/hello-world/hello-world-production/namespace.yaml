@@ -1,0 +1,8 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: hello-world-production
+  annotations:
+    configsync.gke.io/cluster-name-selector: production
+  labels:
+    istio.io/rev: asm-191-1

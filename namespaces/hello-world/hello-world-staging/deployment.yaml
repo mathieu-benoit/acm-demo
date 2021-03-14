@@ -16,6 +16,9 @@ spec:
       containers:
       - name: hello-world
         image: us-east4-docker.pkg.dev/mabenoit-demo/containers/hello-world:v2
+        env:
+        - name: TARGET
+          value: "Staging"
         ports:
           - name: http
             containerPort: 8080
