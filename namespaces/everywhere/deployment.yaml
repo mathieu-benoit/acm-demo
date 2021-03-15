@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: everywhere
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: everywhere
+  template:
+    metadata:
+      labels:
+        app: everywhere
+    spec:
+      serviceAccountName: default
+      containers:
+      - name: everywhere
+        image: gcr.io/google-samples/whereami:v1.2.0
+        ports:
+          - name: http
+            containerPort: 8080
