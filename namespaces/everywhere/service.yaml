@@ -9,4 +9,4 @@ spec:
     name: http
   selector:
     app: everywhere
-  type: ClusterIP
+  type: LoadBalancer
