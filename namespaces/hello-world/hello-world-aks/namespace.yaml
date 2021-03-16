@@ -1,7 +1,7 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: hello-world
+  name: hello-world-aks
   annotations:
     configsync.gke.io/cluster-name-selector: aks-cluster
   labels:
