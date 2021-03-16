@@ -4,4 +4,4 @@ metadata:
   name: aks-cluster
   labels:
     cloud: azure
-    istio: disabled
+    istio: enabled
