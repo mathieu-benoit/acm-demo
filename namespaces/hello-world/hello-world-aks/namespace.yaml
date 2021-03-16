@@ -1,8 +1,0 @@
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: hello-world-aks
-  annotations:
-    configsync.gke.io/cluster-name-selector: aks-cluster
-  labels:
-    istio.io/rev: asm-191-1
