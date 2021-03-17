@@ -66,18 +66,6 @@ spec:
     port: 7070
     targetPort: 7070
 ---
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: cartservice
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: cartservice
-  updatePolicy:
-    updateMode: "Off"
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

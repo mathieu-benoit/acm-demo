@@ -40,18 +40,6 @@ spec:
             cpu: 55m
             memory: 243Mi
 ---
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: loadgenerator
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: loadgenerator
-  updatePolicy:
-    updateMode: "Off"
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
