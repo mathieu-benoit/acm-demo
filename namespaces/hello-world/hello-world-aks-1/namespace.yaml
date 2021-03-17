@@ -1,8 +1,8 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: hello-world-staging
+  name: hello-world-aks-1
   annotations:
-    configsync.gke.io/cluster-name-selector: staging
+    configsync.gke.io/cluster-name-selector: aks-1
   labels:
     istio.io/rev: asm-191-1
