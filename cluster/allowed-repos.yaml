@@ -15,4 +15,4 @@ spec:
       - "gke.gcr.io"
       - "us-east4-docker.pkg.dev/mabenoit-demo/containers"
       - "gcr.io/google-samples/microservices-demo"
-      - "docker.io"
+      - "mabenoit"
