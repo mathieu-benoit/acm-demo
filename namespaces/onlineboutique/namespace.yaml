@@ -4,3 +4,21 @@ metadata:
   name: onlineboutique
   annotations:
     configsync.gke.io/cluster-name-selector: staging
+    cnrm.cloud.google.com/project-id : mabenoit-demo
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+spec:
+  {}

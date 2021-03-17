@@ -1,0 +1,269 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+  annotations:
+    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-demo.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-live
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+      version: live
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: live
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: frontend
+      containers:
+        - name: server
+          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.1
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-readiness-probe"
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          env:
+          - name: PORT
+            value: "8080"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:3550"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:7000"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:7070"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "recommendationservice:8080"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:50051"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "checkoutservice:5050"
+          - name: AD_SERVICE_ADDR
+            value: "adservice:9555"
+          - name: ENV_PLATFORM
+            value: "onprem"
+          # - name: DISABLE_TRACING
+          #   value: "1"
+          # - name: DISABLE_PROFILER
+          #   value: "1"
+          # - name: JAEGER_SERVICE_ADDR
+          #   value: "jaeger-collector:14268"
+          resources:
+            requests:
+              cpu: 30m
+              memory: 27Mi
+            limits:
+              cpu: 70m
+              memory: 151Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-preview
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+      version: preview
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: preview
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: frontend
+      containers:
+        - name: server
+          image: us-east4-docker.pkg.dev/mygke-955/containers/boutique/frontend:v0.2.2
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-readiness-probe"
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          env:
+          - name: PORT
+            value: "8080"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:3550"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:7000"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:7070"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "recommendationservice:8080"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:50051"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "checkoutservice:5050"
+          - name: AD_SERVICE_ADDR
+            value: "adservice:9555"
+          - name: ENV_PLATFORM
+            value: "gcp"
+          # - name: DISABLE_TRACING
+          #   value: "1"
+          # - name: DISABLE_PROFILER
+          #   value: "1"
+          # - name: JAEGER_SERVICE_ADDR
+          #   value: "jaeger-collector:14268"
+          resources:
+            requests:
+              cpu: 30m
+              memory: 27Mi
+            limits:
+              cpu: 70m
+              memory: 151Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: frontend
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: frontend
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: frontend
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: frontend
+spec:
+  hosts:
+    - "*"
+  gateways:
+  - frontend
+  http:
+  - route:
+    - destination:
+        host: frontend
+        subset: preview
+      weight: 50
+    - destination:
+        host: frontend
+        subset: live
+      weight: 50
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: frontend
+spec:
+  host: frontend
+  subsets:
+  - name: live
+    labels:
+      version: live
+  - name: preview
+    labels:
+      version: preview
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: loadgenerator
+    - namespaceSelector:
+          matchLabels:
+            name: istio-system  
+      podSelector:
+        matchLabels:
+          app: istio-ingressgateway
+    ports:
+     - port: 8080
+       protocol: TCP
+  egress:
+  - {}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/onlineboutique/sa/loadgenerator", "cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]
+    to:
+      - operation:
+          methods: ["GET", "POST"]
+          ports: ["8080"]

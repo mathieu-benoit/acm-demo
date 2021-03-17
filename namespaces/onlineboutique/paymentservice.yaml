@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: paymentservice
+  annotations:
+    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-demo.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice
+spec:
+  selector:
+    matchLabels:
+      app: paymentservice
+  template:
+    metadata:
+      labels:
+        app: paymentservice
+    spec:
+      serviceAccountName: paymentservice
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.2.2
+        ports:
+        - containerPort: 50051
+        env:
+        - name: PORT
+          value: "50051"
+        readinessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:50051"]
+        livenessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:50051"]
+        resources:
+          requests:
+            cpu: 9m
+            memory: 72Mi
+          limits:
+            cpu: 50m
+            memory: 75Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paymentservice
+spec:
+  type: ClusterIP
+  selector:
+    app: paymentservice
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: paymentservice
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: paymentservice
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: paymentservice
+spec:
+  podSelector:
+    matchLabels:
+      app: paymentservice
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+     - port: 50051
+       protocol: TCP
+  egress:
+  - {}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: paymentservice
+spec:
+  selector:
+    matchLabels:
+      app: paymentservice
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/onlineboutique/sa/checkoutservice"]
+    to:
+      - operation:
+          paths: ["/hipstershop.PaymentService/Charge"]
+          methods: ["POST"]
+          ports: ["50051"]

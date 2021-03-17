@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cartservice
+  annotations:
+    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-demo.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartservice
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+  template:
+    metadata:
+      labels:
+        app: cartservice
+    spec:
+      serviceAccountName: cartservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+            capabilities:
+              drop:
+                - all
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/cartservice:v0.2.2
+        ports:
+        - containerPort: 7070
+        env:
+        - name: REDIS_ADDR
+          value: "10.113.228.179"
+        resources:
+          requests:
+            cpu: 60m
+            memory: 160Mi
+          limits:
+            cpu: 120m
+            memory: 320Mi
+        readinessProbe:
+          initialDelaySeconds: 15
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
+        livenessProbe:
+          initialDelaySeconds: 15
+          tcpSocket:
+            port: 7070
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartservice
+spec:
+  type: ClusterIP
+  selector:
+    app: cartservice
+  ports:
+  - name: grpc
+    port: 7070
+    targetPort: 7070
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: cartservice
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: cartservice
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cartservice
+spec:
+  podSelector:
+    matchLabels:
+      app: cartservice
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+     - port: 7070
+       protocol: TCP
+  egress:
+  - {}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: cartservice
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/onlineboutique/sa/frontend", "cluster.local/ns/onlineboutique/sa/checkoutservice"]
+    to:
+      - operation:
+          paths: ["/hipstershop.CartService/AddItem", "/hipstershop.CartService/GetCart", "/hipstershop.CartService/EmptyCart"]
+          methods: ["POST"]
+          ports: ["7070"]
