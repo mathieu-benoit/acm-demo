@@ -8,7 +8,7 @@ spec:
     kinds:
       - apiGroups: [""]
         kinds: ["Pod"]
-    excludedNamespaces: ["cnrm-system"]
+    excludedNamespaces: ["cnrm-system", "asm-system"]
   parameters:
     labels:
       - key: "app"
