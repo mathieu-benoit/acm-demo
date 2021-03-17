@@ -25,7 +25,7 @@ spec:
       serviceAccountName: frontend
       containers:
         - name: server
-          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.1
+          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.2
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -97,7 +97,7 @@ spec:
       serviceAccountName: frontend
       containers:
         - name: server
-          image: us-east4-docker.pkg.dev/mygke-955/containers/boutique/frontend:v0.2.2
+          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.2
           ports:
           - containerPort: 8080
           readinessProbe:
