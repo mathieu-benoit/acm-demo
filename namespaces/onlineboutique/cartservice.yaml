@@ -31,7 +31,7 @@ spec:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-        image: us-east4-docker.pkg.dev/mabenoit-demo/containers/boutique/cartservice:e402fc1
+        image: us-east4-docker.pkg.dev/mabenoit-meetup/containers/boutique/cartservice:e402fc1
         ports:
         - containerPort: 7070
         env:

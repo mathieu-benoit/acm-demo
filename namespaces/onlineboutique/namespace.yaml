@@ -3,8 +3,8 @@ apiVersion: v1
 metadata:
   name: onlineboutique
   annotations:
-    configsync.gke.io/cluster-name-selector: staging
-    cnrm.cloud.google.com/project-id : mabenoit-demo
+    configsync.gke.io/cluster-name-selector: gke-1
+    cnrm.cloud.google.com/project-id : mabenoit-meetup
   labels:
     istio.io/rev: asm-191-1
 ---
