@@ -1,0 +1,6 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: onlineboutique
+  annotations:
+    configsync.gke.io/cluster-name-selector: staging

@@ -1,0 +1,11 @@
+apiVersion: redis.cnrm.cloud.google.com/v1beta1
+kind: RedisInstance
+metadata:
+  annotations:
+    cnrm.cloud.google.com/project-id : mabenoit-demo
+  name: cart
+spec:
+  region: us-east4
+  tier: BASIC
+  memorySizeGb: 1
+  redisVersion: REDIS_5_0
