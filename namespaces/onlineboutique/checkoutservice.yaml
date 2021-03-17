@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   name: checkoutservice
   annotations:
-    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-demo.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-meetup.iam.gserviceaccount.com
 ---
 apiVersion: apps/v1
 kind: Deployment
