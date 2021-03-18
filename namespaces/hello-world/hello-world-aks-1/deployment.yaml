@@ -18,7 +18,7 @@ spec:
         image: mabenoit/hello-world:v2
         env:
         - name: TARGET
-          value: "World"
+          value: "AKS"
         ports:
           - name: http
             containerPort: 8080
