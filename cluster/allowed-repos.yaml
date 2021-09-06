@@ -16,3 +16,4 @@ spec:
       - "us-east4-docker.pkg.dev/mabenoit-meetup/containers"
       - "gcr.io/google-samples/microservices-demo"
       - "mabenoit"
+      - "redis"
