@@ -254,4 +254,4 @@ spec:
     to:
       - operation:
           methods: ["GET", "POST"]
-          ports: ["80"]
+          ports: ["8080"]
