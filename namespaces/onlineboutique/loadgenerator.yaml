@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   name: loadgenerator
   annotations:
-    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-meetup.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: onlineboutique-gsa@mabenoit-startup-demo.iam.gserviceaccount.com
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,7 +26,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: main
-        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.2.2
+        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.2.4
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"

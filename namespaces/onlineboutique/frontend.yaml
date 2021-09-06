@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   name: frontend
   annotations:
-    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-meetup.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: onlineboutique-gsa@mabenoit-startup-demo.iam.gserviceaccount.com
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -97,7 +97,7 @@ spec:
       serviceAccountName: frontend
       containers:
         - name: server
-          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.2
+          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.4
           ports:
           - containerPort: 8080
           readinessProbe:

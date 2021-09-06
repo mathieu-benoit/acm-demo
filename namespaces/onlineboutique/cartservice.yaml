@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   name: cartservice
   annotations:
-    iam.gke.io/gcp-service-account: boutique-gsa@mabenoit-meetup.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: onlineboutique-gsa@mabenoit-startup-demo.iam.gserviceaccount.com
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -20,38 +20,30 @@ spec:
     spec:
       serviceAccountName: cartservice
       terminationGracePeriodSeconds: 5
-      securityContext:
-        runAsUser: 1000
       containers:
       - name: server
-        securityContext:
-            capabilities:
-              drop:
-                - all
-            runAsNonRoot: true
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-        image: us-east4-docker.pkg.dev/mabenoit-meetup/containers/boutique/cartservice:e402fc1
+        image: gcr.io/google-samples/microservices-demo/cartservice:v0.2.4
         ports:
         - containerPort: 7070
         env:
         - name: REDIS_ADDR
-          value: "10.236.47.35"
+          value: "10.172.95.219"
         resources:
           requests:
-            cpu: 60m
-            memory: 160Mi
+            cpu: 200m
+            memory: 64Mi
           limits:
-            cpu: 120m
-            memory: 320Mi
+            cpu: 300m
+            memory: 128Mi
         readinessProbe:
           initialDelaySeconds: 15
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
         livenessProbe:
           initialDelaySeconds: 15
-          tcpSocket:
-            port: 7070
+          periodSeconds: 10
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
 ---
 apiVersion: v1
 kind: Service
