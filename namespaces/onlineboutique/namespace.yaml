@@ -2,11 +2,8 @@ kind: Namespace
 apiVersion: v1
 metadata:
   name: onlineboutique
-  annotations:
-    configsync.gke.io/cluster-name-selector: gke-1
-    cnrm.cloud.google.com/project-id : mabenoit-meetup
   labels:
-    istio.io/rev: asm-191-1
+    istio.io/rev: asm-1104-6
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
