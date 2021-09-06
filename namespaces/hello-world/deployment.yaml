@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        application: hello-world
+        app: hello-world
     spec:
       serviceAccountName: default
       containers:
