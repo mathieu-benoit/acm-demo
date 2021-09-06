@@ -1,6 +1,6 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: hello-world-gke-1
+  name: hello-world
   labels:
     istio.io/rev: asm-1104-6
