@@ -8,89 +8,15 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-live
+  name: frontend
 spec:
   selector:
     matchLabels:
       app: frontend
-      version: live
   template:
     metadata:
       labels:
         app: frontend
-        version: live
-      annotations:
-        sidecar.istio.io/rewriteAppHTTPProbers: "true"
-    spec:
-      serviceAccountName: frontend
-      containers:
-        - name: server
-          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.4
-          ports:
-          - containerPort: 8080
-          readinessProbe:
-            initialDelaySeconds: 10
-            httpGet:
-              path: "/_healthz"
-              port: 8080
-              httpHeaders:
-              - name: "Cookie"
-                value: "shop_session-id=x-readiness-probe"
-          livenessProbe:
-            initialDelaySeconds: 10
-            httpGet:
-              path: "/_healthz"
-              port: 8080
-              httpHeaders:
-              - name: "Cookie"
-                value: "shop_session-id=x-liveness-probe"
-          env:
-          - name: PORT
-            value: "8080"
-          - name: PRODUCT_CATALOG_SERVICE_ADDR
-            value: "productcatalogservice:3550"
-          - name: CURRENCY_SERVICE_ADDR
-            value: "currencyservice:7000"
-          - name: CART_SERVICE_ADDR
-            value: "cartservice:7070"
-          - name: RECOMMENDATION_SERVICE_ADDR
-            value: "recommendationservice:8080"
-          - name: SHIPPING_SERVICE_ADDR
-            value: "shippingservice:50051"
-          - name: CHECKOUT_SERVICE_ADDR
-            value: "checkoutservice:5050"
-          - name: AD_SERVICE_ADDR
-            value: "adservice:9555"
-          - name: ENV_PLATFORM
-            value: "onprem"
-          # - name: DISABLE_TRACING
-          #   value: "1"
-          # - name: DISABLE_PROFILER
-          #   value: "1"
-          # - name: JAEGER_SERVICE_ADDR
-          #   value: "jaeger-collector:14268"
-          resources:
-            requests:
-              cpu: 30m
-              memory: 27Mi
-            limits:
-              cpu: 70m
-              memory: 151Mi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend-preview
-spec:
-  selector:
-    matchLabels:
-      app: frontend
-      version: preview
-  template:
-    metadata:
-      labels:
-        app: frontend
-        version: preview
       annotations:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
     spec:
@@ -190,26 +116,8 @@ spec:
   - route:
     - destination:
         host: frontend
-        subset: preview
-      weight: 50
-    - destination:
-        host: frontend
-        subset: live
-      weight: 50
----
-apiVersion: networking.istio.io/v1alpha3
-kind: DestinationRule
-metadata:
-  name: frontend
-spec:
-  host: frontend
-  subsets:
-  - name: live
-    labels:
-      version: live
-  - name: preview
-    labels:
-      version: preview
+        port:
+          number: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
